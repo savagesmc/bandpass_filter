@@ -1,13 +1,13 @@
 version 2
 2
 1
-.ac dec 100 100k 5G{return}.kicad adjustpaths{return}.save all{return}.probe alli
+.ac dec 100 100k 5G{return}{return}.kicad adjustpaths{return}.save all{return}.probe alli
 1
 9
 V(V_out)
  
 1
-.ac dec 100 100k 5G{return}.kicad adjustpaths{return}.save all{return}.probe alli
+.ac dec 100 100k 5G{return}{return}.kicad adjustpaths{return}.save all{return}.probe alli
 1
 5
 V(V_out)
