@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ -z `which ngspice` ]; then
+	echo No ngspice found
+	exit 255
+fi
+
+models=(
+	hf_filter_9th
+	vhf_filter_9th
+	uhf_filter_9th
+	lband_filter_3rd
+)
+
+for m in ${models[@]}
+do
+	if [[ -e $m.spice ]]; then
+		ngspice -b $m.spice
+	fi
+done
+
+if [ -z `which gs` ]; then
+	echo No ghostscript found
+	exit 0
+fi
+
+for m in ${models[@]}
+do
+	if [[ -e ${m}_5tol.ps ]]; then
+		gs -sDEVICE=jpeg -dJPEGQ=100 -dNOPAUSE -dBATCH -dSAFER -r300 -sOutputFile=$m.jpg ${m}_5tol.ps
+	fi
+done

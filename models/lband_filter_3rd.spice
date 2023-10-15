@@ -1,0 +1,59 @@
+L-Band Bandpass Filter - 3rd Order Chebyshev
+
+V1 SRC 0 DC 0 AC 1 PULSE( 0 5 1u 1u 1u 1 1)
+R1 SRC IN 50
+
+C1 IN 0 1.8p
+L1 IN 0 8.2n
+
+C2 IN N2 1.8p
+L2 N2 N3 8.2n
+
+C3 N3 0 3.6p
+L3 N3 0 4.3n
+
+C4 N3 N4 3.3p
+L4 N4 OUT 4.7n
+
+R2 OUT 0 50
+
+.control
+   let mc_runs = 100
+   let run = 1
+   set curplot = new
+   set scratch = $curplot
+
+* 5% Tolerance
+   set tol = 0.05
+
+   define unif(nom, var) (nom + nom*var * sunif(0))
+
+   dowhile run <= mc_runs
+
+      alter C1 = unif(1.8p, $tol)
+      alter L1 = unif(8.2n, $tol)
+
+      alter C2 = unif(1.8p, $tol)
+      alter L2 = unif(8.2n, $tol)
+
+      alter C3 = unif(3.6p, $tol)
+      alter L3 = unif(4.3n, $tol)
+
+      alter C4 = unif(3.3p, $tol)
+      alter L4 = unif(4.7n, $tol)
+
+      ac oct 100 100e6 4000e6
+
+      set run ="$&run"
+      set dt = $curplot
+      setplot $scratch
+
+      let loss{$run}={$dt}.v(out)/{$dt}.v(in)
+      setplot $dt
+      let run = run + 1
+   end
+   set nolegend
+   hardcopy lband_filter_3rd_5tol.ps db({$scratch}.all) xlimit 100e6 4000e6 ylimit -70 5 ylabel 'L-Band BPF - insertion loss'
+   * plot db({$scratch}.all) xlimit 100e6 4000e6 ylimit -70 5 ylabel 'L-Band BPF - insertion loss'
+.endc
+.end

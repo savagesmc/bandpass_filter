@@ -1,0 +1,90 @@
+* HF Bandpass Filter - 9th order Chebyshev
+
+V1 SRC 0 DC 0 AC 1 PULSE( 0 5 1u 1u 1u 1 1)
+
+R1 SRC IN 50
+
+C1 IN 0 100p
+L1 IN 0 2.7u
+
+C2 IN N2 820p
+L2 N2 N3 330n
+
+C3 N3 0 180p
+L3 N3 0 1.5u
+
+C4 N3 N4 680p
+L4 N4 N5 330n
+
+C5 N5 0 180p
+L5 N5 0 1.5u
+
+C6 N5 N6 680p
+L6 N6 N7 330n
+
+C7 N7 0 180p
+L7 N7 0 1.5u
+
+C8 N7 N8 820p
+L8 N8 OUT 330n
+
+C9 OUT 0 100p
+L9 OUT 0 2.7u
+
+R2 OUT 0 50
+
+.control
+   let mc_runs = 1000
+   let run = 1
+   set curplot = new
+   set scratch = $curplot
+
+* 5% Tolerance
+   set tol = 0.05
+
+   define unif(nom, var) (nom + nom*var * sunif(0))
+
+   dowhile run <= mc_runs
+
+      alter C1 = unif(100p, $tol)
+      alter L1 = unif(2.7u, $tol)
+
+      alter C2 = unif(820p, $tol)
+      alter L2 = unif(330n, $tol)
+
+      alter C3 = unif(180p, $tol)
+      alter L3 = unif(1.5u, $tol)
+
+      alter C4 = unif(680p, $tol)
+      alter L4 = unif(330n, $tol)
+
+      alter C5 = unif(180p, $tol)
+      alter L5 = unif(1.5u, $tol)
+
+      alter C6 = unif(680p, $tol)
+      alter L6 = unif(330n, $tol)
+
+      alter C7 = unif(180p, $tol)
+      alter L7 = unif(1.5u, $tol)
+
+      alter C8 = unif(820p, $tol)
+      alter L8 = unif(330n, $tol)
+
+      alter C9 = unif(100p, $tol)
+      alter L9 = unif(2.7u, $tol)
+
+      ac oct 100 1e6 500e6
+
+      set run ="$&run"
+      set dt = $curplot
+      setplot $scratch
+
+      let loss{$run}={$dt}.v(out)/{$dt}.v(in)
+      setplot $dt
+      let run = run + 1
+   end
+   set nolegend
+   hardcopy hf_filter_9th_5tol.ps db({$scratch}.all) xlimit 1e6 100e6 ylimit -55 5 ylabel 'HF BPF - insertion loss'
+   * plot db({$scratch}.all) xlimit 1e6 100e6 ylimit -55 5 ylabel 'HF BPF - insertion loss'
+.endc
+.end

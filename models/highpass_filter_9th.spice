@@ -1,0 +1,53 @@
+HF Bandpass Filter - Shunt First - 9th order Chebyshev - 10% Tolerance Components
+
+V1 SRC 0 DC 0 AC 1 PULSE( 0 5 1u 1u 1u 1 1)
+R1 SRC IN 50
+L1 IN 0 3.6u
+C2 IN N2 820p
+L3 N2 0 1.6u
+C4 N2 N3 680p
+L5 N3 0 1.5u
+C6 N3 N4 680p
+L7 N4 0 1.6u
+C8 N4 OUT 820p
+L9 OUT 0 3.6u
+R2 OUT 0 50
+
+.control
+   let mc_runs = 1000
+   let run = 1
+   set curplot = new
+   set scratch = $curplot
+
+* 5% Tolerance
+   set tol = 0.05
+
+   define unif(nom, var) (nom + nom*var * sunif(0))
+
+   dowhile run <= mc_runs
+
+      alter L1 = unif(3.6u, $tol)
+      alter C2 = unif(820p, $tol)
+      alter L3 = unif(1.6u, $tol)
+      alter C4 = unif(680p, $tol)
+      alter L5 = unif(1.5u, $tol)
+      alter C6 = unif(680p, $tol)
+      alter L7 = unif(1.6u, $tol)
+      alter C8 = unif(820p, $tol)
+      alter L9 = unif(3.6u, $tol)
+
+      ac oct 100 1e6 5000e6
+
+      set run ="$&run"
+      set dt = $curplot
+      setplot $scratch
+
+      let loss{$run}={$dt}.v(out)/{$dt}.v(in)
+      setplot $dt
+      let run = run + 1
+   end
+   set nolegend
+   hardcopy highpass_filter_9th_5tol.ps db({$scratch}.all) xlimit 1e6 5000e6 ylimit -55 5 ylabel 'HF BPF - insertion loss'
+   * plot db({$scratch}.all) xlimit 1e6 5000e6 ylimit -55 5 ylabel 'HF BPF - insertion loss'
+.endc
+.end
